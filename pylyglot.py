@@ -1,16 +1,12 @@
 import click
 
-JFIF = bytearray(b'0xff0xd80x00x00') 
-
 class jpeg:
     def __init__(self, fileName):
         with open(fileName, "rb") as data:
             jpg = bytearray(data.read())
             i = jpg.index(b"\xdb")
             self.jfif = jpg[0:i-1]
-            print(self.jfif)
             self.imageData = jpg[i:]
-            print(self.imageData)
 
     @property
     def jfif(self):
@@ -34,22 +30,45 @@ class jfif:
 
 class pdf:
     def __init__(self, fileName):
-        with open(fileName) as data:
-            pass
+        with open(fileName, "rb") as data:
+            pdf = bytearray(data.read())
+            i = 0
+            while i <= len(pdf):
+                if chr(pdf[i]) == 'o' and chr(pdf[i+1]) == 'b' and chr(pdf[i+2]) == 'j':
+                    self.pdfHeader = pdf[:i-1]
+                    self.pdfData = pdf[i:]
+                    break
+                i += 1
+
+    @property
+    def pdfHeader(self):
+        return self.__pdfHeader
+
+    @pdfHeader.setter
+    def pdfHeader(self, pdfHeader):
+        self.__pdfHeader = pdfHeader
 
     @property
     def pdfData(self):
         return self.__pdfData
 
     @pdfData.setter
-    def pdfData(self, imageProperty):
+    def pdfData(self, pdfData):
         self.__pdfData = pdfData
 
-with open("vapor.jpg", "rb") as jpg:
-    with open("koc-do-you-want-vaporwave.pdf", "rb") as pdf:
-        pdf = bytearray(pdf.read())
-        jpg = jpeg("vapor.jpg") 
-        print(type(jpg))
+def jpgInPdf(jpg, pdf):
+    output = bytearray()
+    head = jpg.jfif
+    tail = ""
+    dummyObject = bytearray()
+    head[2] = ord('\x00')
+    head[3] = ord('\x00')
+    output.extend(head)
+    with open("out.pdf", "wb") as outputFile:
+        pass
 
-with open("out.pdf", "wb") as o:
-    pass
+with open("vapor.jpg", "rb") as jpg:
+    pdf = pdf("koc-do-you-want-vaporwave.pdf")
+    jpg = jpeg("vapor.jpg") 
+    jpgInPdf(jpg, pdf)
+
